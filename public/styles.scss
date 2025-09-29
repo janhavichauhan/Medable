@@ -1,0 +1,372 @@
+
+// ===============================
+// Variables
+// ===============================
+$primary: #4a90e2;
+$secondary: #6c757d;
+$success: #28a745;
+$warning: #ffc107;
+$error: #dc3545;
+$info: #17a2b8;
+$light: #f9f9fb;
+$dark: #2c2c34;
+
+$border-radius: 8px;
+$transition: all 0.3s ease;
+
+// ===============================
+// Mixins
+// ===============================
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin card {
+  background: #fff;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  padding: 1rem;
+}
+
+// ===============================
+// Base Styles
+// ===============================
+body {
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background: $light;
+  margin: 0;
+  color: $dark;
+}
+
+h1, h2, h3, h4 {
+  margin: 0.5rem 0;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  border-radius: $border-radius;
+  transition: $transition;
+
+  &.btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+
+    &-primary {
+      background: $primary;
+      color: #fff;
+
+      &:hover { background: darken($primary, 10%); }
+    }
+
+    &-secondary {
+      background: $secondary;
+      color: #fff;
+
+      &:hover { background: darken($secondary, 10%); }
+    }
+
+    &-warning {
+      background: $warning;
+      color: #000;
+    }
+
+    &-info {
+      background: $info;
+      color: #fff;
+    }
+
+    &-large {
+      font-size: 1rem;
+      padding: 0.8rem 1.2rem;
+    }
+
+    &-full {
+      width: 100%;
+    }
+  }
+}
+
+// ===============================
+// Header
+// ===============================
+.header {
+  background: $primary;
+  color: #fff;
+  padding: 0.8rem 1.5rem;
+
+  .header-content {
+    @include flex-center;
+    justify-content: space-between;
+
+    .logo {
+      @include flex-center;
+      gap: 0.5rem;
+
+      h1 { font-size: 1.4rem; }
+    }
+
+    .user-section {
+      .auth-info {
+        @include flex-center;
+        gap: 0.5rem;
+
+        .user-badge {
+          font-size: 1.2rem;
+        }
+
+        .btn-logout {
+          background: transparent;
+          color: #fff;
+          font-size: 1rem;
+
+          &:hover { color: lighten($error, 10%); }
+        }
+      }
+    }
+  }
+}
+
+// ===============================
+// Welcome Screen
+// ===============================
+.welcome-screen {
+  @include flex-center;
+  height: 70vh;
+  text-align: center;
+
+  .welcome-content {
+    @include card;
+    max-width: 500px;
+
+    .welcome-icon {
+      font-size: 3rem;
+      color: $primary;
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+// ===============================
+// Dashboard
+// ===============================
+.dashboard {
+  padding: 1.5rem;
+
+  .stats-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    .stat-item {
+      @include card;
+      flex: 1;
+      text-align: center;
+
+      i { font-size: 1.2rem; margin-bottom: 0.3rem; display: block; }
+      .stat-number { font-size: 1.4rem; font-weight: bold; }
+      .stat-label { font-size: 0.8rem; color: $secondary; }
+    }
+  }
+
+  .upload-zone {
+    @include card;
+    text-align: center;
+    padding: 2rem;
+    border: 2px dashed $primary;
+    transition: $transition;
+
+    &.drag-over { background: rgba($primary, 0.1); }
+
+    input[type="file"] { display: none; }
+
+    .upload-icon {
+      font-size: 2rem;
+      color: $primary;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar {
+      background: #e9ecef;
+      border-radius: $border-radius;
+      overflow: hidden;
+      margin-top: 1rem;
+
+      .progress-fill {
+        background: $primary;
+        height: 6px;
+        width: 0;
+        transition: width 0.4s;
+      }
+    }
+  }
+
+  .file-gallery {
+    margin-top: 2rem;
+
+    .gallery-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+
+      .view-toggle {
+        .view-btn {
+          background: #fff;
+          border: 1px solid #ddd;
+          margin-left: 0.3rem;
+          &.active {
+            background: $primary;
+            color: #fff;
+          }
+        }
+      }
+    }
+
+    .file-grid {
+      display: grid;
+      gap: 1rem;
+
+      &.grid-view {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      }
+
+      &.list-view {
+        grid-template-columns: 1fr;
+      }
+
+      .file-card {
+        @include card;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        .file-preview { font-size: 2rem; color: $secondary; }
+        .file-status { font-size: 0.85rem; }
+
+        .file-actions {
+          display: flex;
+          gap: 0.5rem;
+
+          .action-btn {
+            flex: 1;
+            padding: 0.4rem;
+            background: $light;
+            border-radius: $border-radius;
+
+            &.danger { color: $error; }
+          }
+        }
+      }
+    }
+  }
+}
+
+// ===============================
+// Puzzle Challenge
+// ===============================
+.puzzle-challenge {
+  margin-top: 2rem;
+  @include card;
+
+  .challenge-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .step-icon {
+        background: $secondary;
+        color: #fff;
+        border-radius: 50%;
+        width: 28px; height: 28px;
+        @include flex-center;
+        font-size: 0.9rem;
+      }
+
+      &.completed .step-icon { background: $success; }
+    }
+  }
+}
+
+// ===============================
+// Admin Panel
+// ===============================
+.admin-panel {
+  margin-top: 2rem;
+  @include card;
+
+  .admin-grid {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+    .admin-card {
+      flex: 1;
+      @include card;
+      padding: 1rem;
+    }
+  }
+
+  .admin-actions {
+    display: flex;
+    gap: 1rem;
+  }
+}
+
+// ===============================
+// Modal
+// ===============================
+.modal {
+  display: none;
+  position: fixed; inset: 0;
+  @include flex-center;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+
+  &.active { display: flex; }
+
+  .modal-content {
+    @include card;
+    max-width: 400px;
+    width: 100%;
+    z-index: 1001;
+  }
+}
+
+// ===============================
+// Notifications
+// ===============================
+.notifications {
+  position: fixed;
+  top: 1rem; right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 2000;
+
+  .notification {
+    @include card;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &.success { border-left: 4px solid $success; }
+    &.error   { border-left: 4px solid $error; }
+    &.warning { border-left: 4px solid $warning; }
+    &.info    { border-left: 4px solid $info; }
+
+    button {
+      background: none;
+      color: $secondary;
+    }
+  }
+}
+

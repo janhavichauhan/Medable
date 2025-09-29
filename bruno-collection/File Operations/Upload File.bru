@@ -1,0 +1,33 @@
+meta {
+  name: 📤 Upload File
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/upload
+}
+
+headers {
+  Authorization: Bearer {{userToken}}
+}
+
+body:multipart-form {
+  file: @file(C:\Users\chauh\Desktop\test.txt)
+}
+
+tests {
+  test("Should return 201 Created", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("Should return file info", function() {
+    expect(res.getBody().file).to.exist;
+    expect(res.getBody().file.id).to.exist;
+  });
+
+  // Store file ID for next requests
+  if (res.getBody().file && res.getBody().file.id) {
+    bru.setVar("fileId", res.getBody().file.id);
+  }
+}

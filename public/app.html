@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Hub - Smart File Processing</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-cloud"></i>
+                    <h1>File Hub</h1>
+                </div>
+                <div class="user-section" id="userSection">
+                    <div class="auth-info" id="authInfo" style="display: none;">
+                        <span class="user-badge" id="userBadge"></span>
+                        <span class="user-name" id="userName"></span>
+                        <button class="btn-logout" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                    <button class="btn btn-primary" id="loginBtn" onclick="showLogin()">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Welcome Screen -->
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-content">
+                    <div class="welcome-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h2>Welcome to File Hub</h2>
+                    <p>Enterprise-grade file processing with modern security, interactive challenges, and professional UI design.</p>
+                    
+                    <!-- Feature Showcase -->
+                    <div class="feature-showcase">
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <h4>Secure Authentication</h4>
+                                <p>JWT-based security with role management</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-cogs"></i>
+                                <h4>Smart Processing</h4>
+                                <p>Multi-format file analysis & processing</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-puzzle-piece"></i>
+                                <h4>Interactive Puzzles</h4>
+                                <p>4-layer security challenge system</p>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-mobile-alt"></i>
+                                <h4>Modern UI</h4>
+                                <p>Responsive design with professional UX</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-access">
+                        <h4>Demo Access</h4>
+                        <div class="demo-buttons">
+                            <button class="btn btn-demo" onclick="fillCredsAndLogin('testuser', 'userpass123')">
+                                <i class="fas fa-user"></i> User Demo
+                            </button>
+                            <button class="btn btn-demo admin" onclick="fillCredsAndLogin('admin', 'adminpass123')">
+                                <i class="fas fa-crown"></i> Admin Demo
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-large" onclick="showLogin()">
+                        Sign In Manually
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="dashboard" id="dashboard" style="display: none;">
+                <!-- Quick Stats -->
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <i class="fas fa-file"></i>
+                        <span class="stat-number" id="totalFiles">0</span>
+                        <span class="stat-label">Files</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span class="stat-number" id="processedFiles">0</span>
+                        <span class="stat-label">Processed</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-clock"></i>
+                        <span class="stat-number" id="pendingFiles">0</span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                </div>
+
+                <!-- Upload Zone -->
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-content">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3>Drop files here or click to browse</h3>
+                        <p class="upload-hint">Support for images, documents, spreadsheets, and more</p>
+                        <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.csv,.txt,.xlsx,.xls">
+                        <div class="upload-progress" id="uploadProgress" style="display: none;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <span class="progress-text" id="progressText">Uploading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Gallery -->
+                <div class="file-gallery" id="fileGallery">
+                    <div class="gallery-header">
+                        <h3>Your Files</h3>
+                        <div class="gallery-controls">
+                            <button class="btn btn-secondary" onclick="refreshFiles()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <div class="view-toggle">
+                                <button class="view-btn active" data-view="grid">
+                                    <i class="fas fa-th"></i>
+                                </button>
+                                <button class="view-btn" data-view="list">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="file-grid" id="fileGrid">
+                        <!-- Files will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Puzzle Challenge -->
+                <div class="puzzle-challenge" id="puzzleChallenge">
+                    <div class="challenge-header">
+                        <h3><i class="fas fa-puzzle-piece"></i> Mystery Challenge</h3>
+                        <p>Discover hidden secrets in our system</p>
+                    </div>
+                    <div class="challenge-progress">
+                        <div class="challenge-steps">
+                            <div class="step" data-step="1">
+                                <div class="step-icon">1</div>
+                                <div class="step-info">
+                                    <h4>First Clue</h4>
+                                    <p>Check response headers</p>
+                                </div>
+                            </div>
+                            <div class="step" data-step="2">
+                                <div class="step-icon">2</div>
+                                <div class="step-info">
+                                    <h4>Hidden Logs</h4>
+                                    <p>Find the secret endpoint</p>
+                                </div>
+                            </div>
+                            <div class="step" data-step="3">
+                                <div class="step-icon">3</div>
+                                <div class="step-info">
+                                    <h4>Decode Message</h4>
+                                    <p>Decrypt the encoded data</p>
+                                </div>
+                            </div>
+                            <div class="step" data-step="4">
+                                <div class="step-icon">4</div>
+                                <div class="step-info">
+                                    <h4>Final Key</h4>
+                                    <p>Unlock the archive</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-challenge" onclick="startChallenge()">
+                            <i class="fas fa-play"></i> Start Challenge
+                        </button>
+                    </div>
+                    <div class="challenge-results" id="challengeResults"></div>
+                </div>
+
+                <!-- Admin Panel (if admin) -->
+                <div class="admin-panel" id="adminPanel" style="display: none;">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-shield-alt"></i> Admin Control</h3>
+                    </div>
+                    <div class="admin-grid">
+                        <div class="admin-card">
+                            <h4>System Status</h4>
+                            <div class="status-indicator online">
+                                <i class="fas fa-circle"></i> Online
+                            </div>
+                        </div>
+                        <div class="admin-card">
+                            <h4>Processing Queue</h4>
+                            <span id="queueStatus">0 jobs</span>
+                        </div>
+                        <div class="admin-card">
+                            <h4>Storage</h4>
+                            <div class="storage-meter">
+                                <div class="storage-fill" style="width: 45%"></div>
+                            </div>
+                            <span>4.5GB / 10GB</span>
+                        </div>
+                    </div>
+                    <div class="admin-actions">
+                        <button class="btn btn-warning" onclick="clearQueue()">
+                            <i class="fas fa-broom"></i> Clear Queue
+                        </button>
+                        <button class="btn btn-info" onclick="viewLogs()">
+                            <i class="fas fa-file-alt"></i> View Logs
+                        </button>
+                        <button class="btn btn-secondary" onclick="testTokens()">
+                            <i class="fas fa-key"></i> Test Tokens
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- File Actions Panel -->
+        <div class="actions-panel" id="actionsPanel" style="display: none;">
+            <div class="panel-header">
+                <h3>File Actions</h3>
+                <button class="close-panel" onclick="closeActionsPanel()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="panel-content" id="panelContent">
+                <!-- Dynamic content based on selected file -->
+            </div>
+        </div>
+
+        <!-- Login Modal -->
+        <div class="modal" id="loginModal">
+            <div class="modal-backdrop" onclick="hideLogin()"></div>
+            <div class="modal-content">
+                <button class="modal-close" onclick="hideLogin()" type="button">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="modal-header">
+                    <h2>Sign In to File Hub</h2>
+                </div>
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <div class="demo-creds">
+                        <h4>Demo Credentials:</h4>
+                        <div class="cred-options">
+                            <button type="button" class="cred-btn" onclick="fillCreds('testuser', 'userpass123')">
+                                <i class="fas fa-user"></i> User Demo
+                            </button>
+                            <button type="button" class="cred-btn" onclick="fillCreds('admin', 'adminpass123')">
+                                <i class="fas fa-crown"></i> Admin Demo
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="notifications" id="notifications"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

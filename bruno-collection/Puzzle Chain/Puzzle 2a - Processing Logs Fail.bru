@@ -1,0 +1,15 @@
+meta {
+  name: Puzzle 2a - Processing Logs (Should Fail)
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/api/processing-logs
+}
+
+tests {
+  test("Should return 403 Forbidden", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+}

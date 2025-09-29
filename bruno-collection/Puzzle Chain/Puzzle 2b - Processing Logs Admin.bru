@@ -1,0 +1,20 @@
+meta {
+  name: Puzzle 2b - Processing Logs Admin Access
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/api/processing-logs?access=PROC_LOGS_ADMIN_2024&level=detailed
+}
+
+tests {
+  test("Should return 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Should have nextClue", function() {
+    expect(res.getBody().nextClue).to.exist;
+    console.log('🔍 Puzzle 2 Clue:', res.getBody().nextClue);
+  });
+}

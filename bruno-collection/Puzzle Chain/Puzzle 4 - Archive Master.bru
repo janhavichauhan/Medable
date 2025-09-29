@@ -1,0 +1,24 @@
+meta {
+  name: Puzzle 4 - Archive Master Access
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/api/archive
+}
+
+headers {
+  X-Archive-Key: ARCHIVE_MASTER_2024
+}
+
+tests {
+  test("Should return 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Should have achievement message", function() {
+    expect(res.getBody().achievement).to.exist;
+    console.log('🏆 Final Achievement:', res.getBody().achievement);
+  });
+}

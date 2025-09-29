@@ -1,0 +1,21 @@
+meta {
+  name: Puzzle 1 - Header Discovery
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/upload
+}
+
+headers {
+  Authorization: Bearer {{userToken}}
+}
+
+tests {
+  test("Should have X-Hidden-Metadata header", function() {
+    const header = res.getHeaders()['x-hidden-metadata'];
+    expect(header).to.exist;
+    console.log('🔍 Puzzle 1 Clue:', header);
+  });
+}

@@ -1,0 +1,28 @@
+meta {
+  name: ✅ List Files - User Auth
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/upload
+}
+
+headers {
+  Authorization: Bearer {{userToken}}
+}
+
+tests {
+  test("Should return 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Should return files array", function() {
+    expect(res.getBody().files).to.be.an('array');
+  });
+
+  test("Should have X-Hidden-Metadata header", function() {
+    expect(res.getHeaders()['x-hidden-metadata']).to.exist;
+    console.log('🔍 Puzzle 1 Clue:', res.getHeaders()['x-hidden-metadata']);
+  });
+}

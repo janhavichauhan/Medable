@@ -1,0 +1,23 @@
+meta {
+  name: 🗑️ Delete File
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{baseUrl}}/api/upload/{{fileId}}
+}
+
+headers {
+  Authorization: Bearer {{userToken}}
+}
+
+tests {
+  test("Should return 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Should confirm deletion", function() {
+    expect(res.getBody().message).to.contain('deleted');
+  });
+}

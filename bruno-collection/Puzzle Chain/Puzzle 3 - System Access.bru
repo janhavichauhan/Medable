@@ -1,0 +1,31 @@
+meta {
+  name: Puzzle 3 - System Access
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/api/processing-logs?level=full
+}
+
+headers {
+  X-System-Key: system-processing-key-2024
+}
+
+tests {
+  test("Should return 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Should have secretHint", function() {
+    const hint = res.getBody().secretHint;
+    expect(hint).to.exist;
+    console.log('🔍 Puzzle 3 Secret Hint (Base64):', hint);
+    try {
+      const decoded = atob(hint);
+      console.log('🔓 Decoded Hint:', decoded);
+    } catch(e) {
+      console.log('❌ Could not decode hint');
+    }
+  });
+}

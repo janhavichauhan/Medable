@@ -1,0 +1,30 @@
+meta {
+  name: ✏️ Update File Metadata
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{baseUrl}}/api/upload/{{fileId}}
+}
+
+headers {
+  Authorization: Bearer {{userToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "publicAccess": true
+  }
+}
+
+tests {
+  test("Should return 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Should update metadata", function() {
+    expect(res.getBody().file.publicAccess).to.equal(true);
+  });
+}

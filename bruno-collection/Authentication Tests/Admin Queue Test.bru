@@ -1,0 +1,23 @@
+meta {
+  name: 👑 Admin Queue Status
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/upload/system/queue-status
+}
+
+headers {
+  Authorization: Bearer {{adminToken}}
+}
+
+tests {
+  test("Should return 200 OK", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Should have queue information", function() {
+    expect(res.getBody().queue).to.exist;
+  });
+}

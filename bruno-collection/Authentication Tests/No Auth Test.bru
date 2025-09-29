@@ -1,0 +1,19 @@
+meta {
+  name: ❌ List Files - No Auth (Should Fail)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/upload
+}
+
+tests {
+  test("Should return 401 Unauthorized", function() {
+    expect(res.getStatus()).to.equal(401);
+  });
+
+  test("Should have error message", function() {
+    expect(res.getBody().error).to.exist;
+  });
+}

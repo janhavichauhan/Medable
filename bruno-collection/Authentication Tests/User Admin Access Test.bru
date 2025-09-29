@@ -1,0 +1,23 @@
+meta {
+  name: ❌ User Access to Admin Endpoint
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/upload/system/queue-status
+}
+
+headers {
+  Authorization: Bearer {{userToken}}
+}
+
+tests {
+  test("Should return 403 Forbidden", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+
+  test("Should have error message", function() {
+    expect(res.getBody().error).to.exist;
+  });
+}

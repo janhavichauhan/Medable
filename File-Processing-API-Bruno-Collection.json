@@ -1,0 +1,394 @@
+{
+  "version": "1",
+  "name": "File Processing API",
+  "type": "collection",
+  "environments": [
+    {
+      "name": "Local Development",
+      "variables": [
+        {
+          "name": "baseUrl",
+          "value": "http://localhost:8888"
+        },
+        {
+          "name": "userToken",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJleGFtaW5lciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU5MTI1MzA4LCJleHAiOjE3OTA2NjEzMDh9.sKKGq15lFg4EHKQ3SG8Go4G8cQqPdlZPTTBTw7q52WE"
+        },
+        {
+          "name": "adminToken", 
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJleGFtaW5lci1hZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1OTEyNTMwOCwiZXhwIjoxNzkwNjYxMzA4fQ.gv4tXEHiOvUa4m3q_p9zp0lgCbZQg-fgmNw0398Hd_c"
+        },
+        {
+          "name": "fileId",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "name": "� Login & Authentication",
+      "type": "folder", 
+      "items": [
+        {
+          "name": "🔍 Get Test Credentials",
+          "type": "http",
+          "seq": 0,
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/credentials",
+            "headers": []
+          },
+          "tests": "test(\"Should return available credentials\", function() {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Should have user and admin credentials\", function() {\n  expect(res.getBody().credentials.user).to.exist;\n  expect(res.getBody().credentials.admin).to.exist;\n});"
+        },
+        {
+          "name": "🔐 Login as User",
+          "type": "http",
+          "seq": 1,
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\n  \"username\": \"testuser\",\n  \"password\": \"userpass123\"\n}"
+            }
+          },
+          "tests": "test(\"Should login successfully\", function() {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Should return token\", function() {\n  expect(res.getBody().token).to.exist;\n});\n\n// Store user token for other requests\nif (res.getBody().token) {\n  bru.setEnvVar(\"userToken\", res.getBody().token);\n}"
+        },
+        {
+          "name": "👑 Login as Admin", 
+          "type": "http",
+          "seq": 2,
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"  
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\n  \"username\": \"admin\",\n  \"password\": \"adminpass123\"\n}"
+            }
+          },
+          "tests": "test(\"Should login successfully\", function() {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Should return admin token\", function() {\n  expect(res.getBody().token).to.exist;\n  expect(res.getBody().user.role).to.equal('admin');\n});\n\n// Store admin token for other requests\nif (res.getBody().token) {\n  bru.setEnvVar(\"adminToken\", res.getBody().token);\n}"
+        },
+        {
+          "name": "❌ Invalid Login",
+          "type": "http",
+          "seq": 3,
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\n  \"username\": \"wronguser\",\n  \"password\": \"wrongpass\"\n}"
+            }
+          },
+          "tests": "test(\"Should reject invalid credentials\", function() {\n  expect(res.getStatus()).to.equal(401);\n});\n\ntest(\"Should have error message\", function() {\n  expect(res.getBody().error).to.exist;\n});"
+        }
+      ]
+    },
+    {
+      "name": "�🔐 Authentication Tests",
+      "type": "folder",
+      "items": [
+        {
+          "name": "❌ List Files - No Auth (Should Fail)",
+          "type": "http",
+          "seq": 1,
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/upload",
+            "headers": []
+          },
+          "tests": "test(\"Should return 401 Unauthorized\", function() {\n  expect(res.getStatus()).to.equal(401);\n});\n\ntest(\"Should have error message\", function() {\n  expect(res.getBody().error).to.exist;\n});"
+        },
+        {
+          "name": "✅ List Files - User Auth",
+          "type": "http",
+          "seq": 2,
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/upload",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ]
+          },
+          "tests": "test(\"Should return 200 OK\", function() {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Should return files array\", function() {\n  expect(res.getBody().files).to.be.an('array');\n});\n\ntest(\"Should have X-Hidden-Metadata header\", function() {\n  expect(res.getHeaders()['x-hidden-metadata']).to.exist;\n});"
+        },
+        {
+          "name": "👑 Admin Queue Status",
+          "type": "http",
+          "seq": 3,
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/upload/system/queue-status",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          },
+          "tests": "test(\"Should return 200 OK\", function() {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Should have queue information\", function() {\n  expect(res.getBody().queue).to.exist;\n});"
+        },
+        {
+          "name": "❌ User Access to Admin Endpoint",
+          "type": "http",
+          "seq": 4,
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/upload/system/queue-status",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ]
+          },
+          "tests": "test(\"Should return 403 Forbidden\", function() {\n  expect(res.getStatus()).to.equal(403);\n});"
+        }
+      ]
+    },
+    {
+      "name": "📁 File Operations",
+      "type": "folder",
+      "items": [
+        {
+          "name": "📤 Upload File",
+          "type": "http",
+          "seq": 5,
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/upload",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "file",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "tests": "test(\"Should return 201 Created\", function() {\n  expect(res.getStatus()).to.equal(201);\n});\n\ntest(\"Should return file info\", function() {\n  expect(res.getBody().file).to.exist;\n  expect(res.getBody().file.id).to.exist;\n});\n\n// Store file ID for next requests\nif (res.getBody().file && res.getBody().file.id) {\n  bru.setEnvVar(\"fileId\", res.getBody().file.id);\n}"
+        },
+        {
+          "name": "📋 Get File Info",
+          "type": "http",
+          "seq": 6,
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/upload/{{fileId}}",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ]
+          },
+          "tests": "test(\"Should return 200 OK\", function() {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Should return file details\", function() {\n  expect(res.getBody().file).to.exist;\n});"
+        },
+        {
+          "name": "✏️ Update File Metadata",
+          "type": "http",
+          "seq": 7,
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/upload/{{fileId}}",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{\n  \"publicAccess\": true\n}"
+            }
+          },
+          "tests": "test(\"Should return 200 OK\", function() {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Should update metadata\", function() {\n  expect(res.getBody().file.publicAccess).to.equal(true);\n});"
+        },
+        {
+          "name": "🗑️ Delete File",
+          "type": "http",
+          "seq": 8,
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/upload/{{fileId}}",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ]
+          },
+          "tests": "test(\"Should return 200 OK\", function() {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Should confirm deletion\", function() {\n  expect(res.getBody().message).to.contain('deleted');\n});"
+        }
+      ]
+    },
+    {
+      "name": "Puzzle Chain",
+      "type": "folder",
+      "items": [
+        {
+          "name": "Puzzle 1 - Header Discovery",
+          "type": "http",
+          "seq": 9,
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/upload",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ]
+          },
+          "tests": "test(\"Should have X-Hidden-Metadata header\", function() {\n  const header = res.getHeaders()['x-hidden-metadata'];\n  expect(header).to.exist;\n  console.log('🔍 Puzzle 1 Clue:', header);\n});"
+        },
+        {
+          "name": "Puzzle 2a - Processing Logs (Should Fail)",
+          "type": "http",
+          "seq": 10,
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/processing-logs",
+            "headers": []
+          },
+          "tests": "test(\"Should return 403 Forbidden\", function() {\n  expect(res.getStatus()).to.equal(403);\n});"
+        },
+        {
+          "name": "Puzzle 2b - Processing Logs Admin Access",
+          "type": "http",
+          "seq": 11,
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/processing-logs?access=PROC_LOGS_ADMIN_2024&level=detailed",
+            "headers": []
+          },
+          "tests": "test(\"Should return 200 OK\", function() {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Should have nextClue\", function() {\n  expect(res.getBody().nextClue).to.exist;\n  console.log('🔍 Puzzle 2 Clue:', res.getBody().nextClue);\n});"
+        },
+        {
+          "name": "Puzzle 3 - System Access",
+          "type": "http",
+          "seq": 12,
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/processing-logs?level=full",
+            "headers": [
+              {
+                "name": "X-System-Key",
+                "value": "system-processing-key-2024"
+              }
+            ]
+          },
+          "tests": "test(\"Should return 200 OK\", function() {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Should have secretHint\", function() {\n  const hint = res.getBody().secretHint;\n  expect(hint).to.exist;\n  console.log('🔍 Puzzle 3 Secret Hint (Base64):', hint);\n  try {\n    const decoded = atob(hint);\n    console.log('🔓 Decoded Hint:', decoded);\n  } catch(e) {\n    console.log('❌ Could not decode hint');\n  }\n});"
+        },
+        {
+          "name": "Puzzle 4 - Archive Master Access",
+          "type": "http",
+          "seq": 13,
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/archive",
+            "headers": [
+              {
+                "name": "X-Archive-Key",
+                "value": "ARCHIVE_MASTER_2024"
+              }
+            ]
+          },
+          "tests": "test(\"Should return 200 OK\", function() {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Should have achievement message\", function() {\n  expect(res.getBody().achievement).to.exist;\n  console.log('🏆 Final Achievement:', res.getBody().achievement);\n});"
+        }
+      ]
+    },
+    {
+      "name": "Security Tests",
+      "type": "folder",
+      "items": [
+        {
+          "name": "❌ Empty File Upload",
+          "type": "http",
+          "seq": 14,
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/upload",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "file",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "tests": "test(\"Should return 400 Bad Request\", function() {\n  expect(res.getStatus()).to.equal(400);\n});\n\ntest(\"Should have validation error\", function() {\n  expect(res.getBody().error).to.exist;\n});"
+        },
+        {
+          "name": "🔍 File Type Validation",
+          "type": "http",
+          "seq": 15,
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/upload",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "file",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "tests": "// This test validates file type restrictions\n// Upload different file types to test validation"
+        }
+      ]
+    }
+  ]
+}
